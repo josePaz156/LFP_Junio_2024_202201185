@@ -1,0 +1,32 @@
+nombre -> 'Mi primer grafo';
+
+nodos -> [
+    'nodoA': 'Nodo 1',
+    'nodoB': 'Nodo 2',
+    'nodoC': 'Nodo 3'
+];
+
+conexiones -> [
+    {'nodoA' > 'nodoB'},
+    {'nodoA' > 'nodoC'}
+];
+
+&
+@
+%
+!!!!
+????
+...
+
+nombre -> 'Mi segundo grafo';
+
+nodos -> [
+    'nodoA': 'Nodo 1',
+    'nodoB': 'Nodo 2',
+    'nodoC': 'Nodo 3'
+];
+
+conexiones -> [
+    {'nodoA' > 'nodoB'},
+    {'nodoA' > 'nodoC'}
+];
