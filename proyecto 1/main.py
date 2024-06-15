@@ -3,7 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import random
 import webbrowser
-from analizador import AnalizadorLexico  # Asegúrate de que este import esté aquí, no dentro del método
+from analizador import Lexer  # Asegúrate de que este import esté aquí, no dentro del método
 
 class VentanaPrincipal:
     def __init__(self, root):
@@ -67,7 +67,7 @@ class VentanaPrincipal:
         self.imagen_label.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
 
     def cargar_archivo(self):
-        archivo = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.txt"), ("Archivos HTML", "*.html"), ("Archivos de código", "*.code")])
+        archivo = filedialog.askopenfilename(filetypes=[("Archivos de código", "*.code")])
         if archivo:
             with open(archivo, 'r', encoding='utf-8') as f:
                 self.contenido = f.read()
@@ -75,8 +75,12 @@ class VentanaPrincipal:
 
     def compilar(self):
         print("Compilando...")
-        analizador = AnalizadorLexico()
-        analizador.analizar(self.contenido)
+        analizador = Lexer(self.contenido)
+        analizador.analizar()
+
+        # Generar reportes de tokens y errores
+        analizador.generar_reporte_tokens()
+        analizador.generar_reporte_errores()
 
         # Generar una imagen aleatoria para el ejemplo
         ancho, alto = 100, 100
@@ -112,4 +116,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
