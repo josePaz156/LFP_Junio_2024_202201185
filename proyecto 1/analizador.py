@@ -1,6 +1,8 @@
 from tokens import Token
 from error import Error
 import graphviz
+import tkinter as tk
+from tkinter import filedialog
 
 class Lexer:
     def __init__(self, entrada) -> None:
@@ -123,7 +125,18 @@ class Lexer:
             else:
                 columna += 1
     
+    def seleccionar_ruta(self):
+        root = tk.Tk()
+        root.withdraw()  # Oculta la ventana principal de Tkinter
+        ruta = filedialog.askdirectory(title="Selecciona la carpeta donde se guardarán los reportes")
+        return ruta + '/' if ruta else ''
+
     def generar_reporte_tokens(self):
+        ruta = self.seleccionar_ruta()
+        if not ruta:
+            print("No se seleccionó una carpeta. Operación cancelada.")
+            return
+
         contenido = "<!DOCTYPE html>\n<html>\n<head>\n<title>Reporte de Tokens</title>\n</head>\n<body>\n"
         contenido += "<h1>Reporte de Tokens</h1>\n"
         contenido += "<table border='1'>\n<tr><th>#</th><th>Tipo</th><th>Valor</th><th>Columna</th><th>Fila</th></tr>\n"
@@ -131,10 +144,15 @@ class Lexer:
             contenido += f"<tr><td>{i+1}</td><td>{token.tipo}</td><td>{token.valor}</td><td>{token.columna}</td><td>{token.fila}</td></tr>\n"
         contenido += "</table>\n</body>\n</html>"
 
-        with open("reporte_tokens.html", "w") as f:
+        with open(f"{ruta}reporte_tokens.html", "w") as f:
             f.write(contenido)
 
     def generar_reporte_errores(self):
+        ruta = self.seleccionar_ruta()
+        if not ruta:
+            print("No se seleccionó una carpeta. Operación cancelada.")
+            return
+
         contenido = "<!DOCTYPE html>\n<html>\n<head>\n<title>Reporte de Errores</title>\n</head>\n<body>\n"
         contenido += "<h1>Reporte de Errores</h1>\n"
         contenido += "<table border='1'>\n<tr><th>#</th><th>Mensaje</th><th>Columna</th><th>Fila</th><th>Valor</th></tr>\n"
@@ -142,7 +160,7 @@ class Lexer:
             contenido += f"<tr><td>{i+1}</td><td>{error.mensaje}</td><td>{error.columna}</td><td>{error.fila}</td><td>{error.valor}</td></tr>\n"
         contenido += "</table>\n</body>\n</html>"
 
-        with open("reporte_errores.html", "w") as f:
+        with open(f"{ruta}reporte_errores.html", "w") as f:
             f.write(contenido)
 
     def generar_imagenes(self):

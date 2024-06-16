@@ -1,17 +1,17 @@
 from tkinter import *
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
-import random
 import webbrowser
-from analizador import Lexer  # Asegúrate de que este import esté aquí, no dentro del método
+from analizador import Lexer  
 
 class VentanaPrincipal:
     def __init__(self, root):
         self.root = root
-        self.contenido = ""  # Variable de instancia para almacenar el contenido del archivo
-        self.imagenes = []  # Lista para almacenar las imágenes generadas
-        self.imagen_actual = None  # Variable para almacenar la imagen actualmente mostrada
+        self.contenido = ""  
+        self.imagenes = []  
+        self.imagen_actual = None  
         self.construir_interfaz()
+        self.root.protocol("WM_DELETE_WINDOW", self.cerrar_ventana)
     
     def construir_interfaz(self):
         # Configurar la raíz para expandirse
@@ -77,7 +77,6 @@ class VentanaPrincipal:
         analizador = Lexer(self.contenido)
         analizador.analizar()
 
-        # Generar reportes de tokens y errores
         analizador.generar_reporte_tokens()
         analizador.generar_reporte_errores()
         nombres_archivos = analizador.generar_imagenes()
@@ -109,6 +108,10 @@ class VentanaPrincipal:
             webbrowser.open_new_tab(archivo_html)
         else:
             messagebox.showwarning("Advertencia", "No se seleccionó ningún archivo HTML")
+
+    def cerrar_ventana(self):
+        self.root.quit()  # Finalizar el mainloop de Tkinter
+        self.root.destroy()
 
 def main():
     root = Tk()
