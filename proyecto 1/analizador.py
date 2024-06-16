@@ -1,10 +1,12 @@
 from tokens import Token
 from error import Error
+import graphviz
 
 class Lexer:
     def __init__(self, entrada) -> None:
         self.entrada = entrada
         self.tokens = []
+        self.grafos = []
         self.errores = []
 
     def isCaracterValido(self, caracter):
@@ -32,6 +34,7 @@ class Lexer:
         linea = 1
         columna = 1
         lexema = ""
+        contador_errores = 0
 
         estado = 0
         estado_anterior = 0
@@ -141,3 +144,81 @@ class Lexer:
 
         with open("reporte_errores.html", "w") as f:
             f.write(contenido)
+
+    def generar_imagenes(self):
+        # Verificar todos los tokens
+        print("Lista completa de tokens:")
+        for t in self.tokens:
+            print(t)
+
+        nombres_archivos = []
+        grafo = None
+        nodos = {}
+        conexiones = []
+
+        i = 0
+        while i < len(self.tokens):
+            token = self.tokens[i]
+            print(f"Token actual: {token}")
+
+            if token.tipo == "Palabra reservada" and token.valor == "nombre":
+                if i + 2 < len(self.tokens) and self.tokens[i + 1].tipo == "Asignación" and self.tokens[i + 2].tipo == "String":
+                    nombre_grafo = self.tokens[i + 2].valor.strip("'")
+                    grafo = graphviz.Digraph(nombre_grafo)
+                    i += 3
+                    print(f"Nombre del grafo: {nombre_grafo}")
+
+            elif token.tipo == "Palabra reservada" and token.valor == "nodos":
+                if i + 2 < len(self.tokens) and self.tokens[i + 1].tipo == "Asignación" and self.tokens[i + 2].tipo == "Signo" and self.tokens[i + 2].valor == "[":
+                    i += 3
+                    while i < len(self.tokens) and not (self.tokens[i].tipo == "Signo" and self.tokens[i].valor == ";"):
+                        if i + 3 < len(self.tokens) and self.tokens[i].tipo == "String" and self.tokens[i + 1].tipo == "Signo" and self.tokens[i + 1].valor == ":" and self.tokens[i + 2].tipo == "String":
+                            nodo_id = self.tokens[i].valor.strip("'")
+                            nodo_label = self.tokens[i + 2].valor.strip("'")
+                            nodos[nodo_id] = nodo_label
+                            grafo.node(nodo_id, label=nodo_label)
+                            i += 4
+                            print(f"Agregado nodo: {nodo_id} con etiqueta: {nodo_label}")
+                        elif self.tokens[i].tipo == "Signo" and self.tokens[i].valor == ",":
+                            i += 1
+                        else:
+                            i += 1
+
+            elif token.tipo == "Palabra reservada" and token.valor == "conexiones":
+                print("Encontrado token de conexiones")
+                if i + 2 < len(self.tokens) and self.tokens[i + 1].tipo == "Asignación" and self.tokens[i + 2].valor == "[":
+                    i += 3
+                    while i < len(self.tokens) and not (self.tokens[i].tipo == "Signo" and self.tokens[i].valor == ";"):
+                        if i + 5 < len(self.tokens) and self.tokens[i].valor == "{" and self.tokens[i + 1].tipo == "String" and self.tokens[i + 2].valor == ">" and self.tokens[i + 3].tipo == "String" and self.tokens[i + 4].valor == "}":
+                            origen = self.tokens[i + 1].valor.strip("'")
+                            destino = self.tokens[i + 3].valor.strip("'")
+                            conexiones.append((origen, destino))
+                            grafo.edge(origen, destino)
+                            i += 5
+                            print(f"Agregada conexión: {origen} -> {destino}")
+                        elif self.tokens[i].tipo == "Signo" and self.tokens[i].valor == ",":
+                            i += 1
+                        else:
+                            i += 1
+
+            elif token.tipo == "Separacion":
+                if grafo:
+                    grafo.render(f'grafo_{grafo.name}', format='png', cleanup=True)
+                    print(f"Grafo {grafo.name} generado.")
+                    nombre_archivo = f'grafo_{grafo.name}.png'
+                    nombres_archivos.append(nombre_archivo)
+                grafo = None
+                nodos = {}
+                conexiones = []
+                i += 1
+            else:
+                i += 1
+
+        if grafo:
+            grafo.render(f'grafo_{grafo.name}', format='png', cleanup=True)
+            nombre_archivo = f'grafo_{grafo.name}.png'
+            nombres_archivos.append(nombre_archivo)
+        else:
+            print("No se ha definido el nombre del grafo.")
+
+        return nombres_archivos

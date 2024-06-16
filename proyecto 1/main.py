@@ -71,7 +71,6 @@ class VentanaPrincipal:
         if archivo:
             with open(archivo, 'r', encoding='utf-8') as f:
                 self.contenido = f.read()
-            print(self.contenido)
 
     def compilar(self):
         print("Compilando...")
@@ -81,17 +80,28 @@ class VentanaPrincipal:
         # Generar reportes de tokens y errores
         analizador.generar_reporte_tokens()
         analizador.generar_reporte_errores()
+        nombres_archivos = analizador.generar_imagenes()
 
-        # Generar una imagen aleatoria para el ejemplo
-        ancho, alto = 100, 100
-        imagen = Image.new('RGB', (ancho, alto), (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+        self.imagen_selector['values'] = nombres_archivos
         
-        # Convertir la imagen a un formato que Tkinter pueda usar
-        imagen_tk = ImageTk.PhotoImage(imagen)
-        self.imagenes.append(imagen_tk)
+        # Limpiar las imágenes anteriores
+        self.imagenes.clear()
+        
+        # Cargar las nuevas imágenes generadas
+        for nombre_archivo in nombres_archivos:
+            imagen = Image.open(nombre_archivo)
+            imagen = imagen.resize((200, 200), Image.BILINEAR)  # Cambio aquí
+            imagen_tk = ImageTk.PhotoImage(imagen)
+            self.imagenes.append(imagen_tk)
 
-        # Actualizar el combobox con la nueva imagen
-        self.imagen_selector['values'] = [f'Imagen {i+1}' for i in range(len(self.imagenes))]
+    def mostrar_imagen(self, event):
+        # Obtener el índice de la imagen seleccionada
+        seleccion = self.imagen_selector.current()
+        if seleccion >= 0 and seleccion < len(self.imagenes):
+            self.imagen_actual = self.imagenes[seleccion]
+            self.imagen_label.config(image=self.imagen_actual)
+        else:
+            print("Índice de imagen seleccionado no válido.")
 
     def abrir_html(self):
         archivo_html = filedialog.askopenfilename(filetypes=[("Archivos HTML", "*.html")])
@@ -99,13 +109,6 @@ class VentanaPrincipal:
             webbrowser.open_new_tab(archivo_html)
         else:
             messagebox.showwarning("Advertencia", "No se seleccionó ningún archivo HTML")
-
-    def mostrar_imagen(self, event):
-        # Obtener el índice de la imagen seleccionada
-        seleccion = self.imagen_selector.current()
-        if seleccion >= 0:
-            self.imagen_actual = self.imagenes[seleccion]
-            self.imagen_label.config(image=self.imagen_actual)
 
 def main():
     root = Tk()

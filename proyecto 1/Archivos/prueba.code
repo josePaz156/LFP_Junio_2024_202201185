@@ -2,8 +2,8 @@ nombre -> 'Mi primer grafo';
 
 nodos -> [
     'nodoA': 'Nodo 1',
-    'nodoB': 'Nodo 2',
-    'nodoC': 'Nodo 3'
+    'nodoB': 'pelota',
+    'nodoC': 'carro'
 ];
 
 conexiones -> [
