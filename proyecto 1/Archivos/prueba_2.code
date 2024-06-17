@@ -6,8 +6,6 @@ nodos -> [
     'nodoC': 'carro'
 ];
 
-651
-
 conexiones -> [
     {'nodoA' > 'nodoB'},
     {'nodoA' > 'nodoA'}
