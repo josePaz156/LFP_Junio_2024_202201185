@@ -1,0 +1,65 @@
+terminales: tk_palabraArray
+            tk_palabraNew
+            tk_numero
+            tk_signo
+            tk_igual
+            tk_id
+            tk_string
+            tk_metodo
+            tk_punto
+            tk_palabraSort
+            tk_palabraSave
+            tk_parentesisAbre
+            tk_parentesisCierra
+            tk_corcheteA
+            tk_corcheteC
+            tk_coma
+            tk_PyC
+            tk_palabraAsc
+            tk_booleano
+
+
+No terminales:  <inicio>
+                <instruccion>
+                <instrucciones>
+                <declaracion>
+                <instruccionID>
+                <accionArreglo>
+                <listaElementos>
+                <masElementos>
+                <elemento>
+                <ordenamiento>
+                <guardar>
+
+
+Inicio: <inicio>
+
+producciones:
+
+                <inicio> ::= <instrucciones>
+
+                <instrucciones> ::= <instruccion> <instrucciones>
+                                | epsilon
+
+                <instruccion> ::= <declaracion>
+                                | <instruccionID>
+
+                <instruccionID> ::= tk_id tk_punto <accionArreglo>
+
+                <accionArreglo> ::= <ordenamiento>
+                                | <guardar>
+
+                <declaracion> ::= tk_palabraArray tk_id tk_igual tk_palabraNew tk_palabraArray tk_corcheteA <listaElementos> tk_corcheteC tk_PyC
+
+                <listaElementos> ::= <elemento> <masElementos>
+                                | epsilon
+
+                <masElementos> ::= tk_coma <elemento> <masElementos>
+                                | epsilon
+
+                <elemento> ::= tk_string
+                            | tk_numero
+
+                <ordenamiento> ::= tk_palabraSort tk_parentesisAbre tk_palabraAsc tk_igual tk_booleano tk_parentesisCierra tk_PyC
+
+                <guardar> ::= tk_palabraSave tk_parentesisAbre tk_string tk_parentesisCierra tk_PyC

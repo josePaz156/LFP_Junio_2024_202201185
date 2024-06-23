@@ -1,0 +1,13 @@
+nombre ->  'grafico-básico-1'; /
+
+nodos -> [
+85.4
+    'nodoinicial' : 'principio',
+    'nodofin' : 'Nodo fin'
+] ;
+
+conexiones  -> [
+    { 'nodoinicial' > 'nodofin' }
+];
+
+*

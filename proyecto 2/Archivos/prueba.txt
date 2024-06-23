@@ -1,0 +1,14 @@
+// comentario de una linea
+
+/*
+comentario
+de
+varias
+linea
+*/
+
+Array miArray = new Array ["hola", 26, 54, 85, 2];
+
+miArray.sort(asc=FALSE);
+
+miArray.save("ruta/del/archivo/csv");
