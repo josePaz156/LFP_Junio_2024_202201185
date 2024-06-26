@@ -9,7 +9,7 @@ class Lexer:
         self.error_lex = []
     
     def estado0(self, caracter, fila, columna):
-        if caracter.isalpha():
+        if caracter.isalpha() or caracter == "_":  # Acepta letras y guiones bajos
             return 1
         elif caracter == "/":
             return 2
@@ -54,7 +54,6 @@ class Lexer:
         lexema = ""
 
         estado = 0
-        estado_anterior = 0
 
         i = 0
         while i < len(self.entrada):
@@ -68,7 +67,7 @@ class Lexer:
                     lexema += caracter
 
             elif estado == 1:
-                if caracter.isalpha():
+                if caracter.isalnum() or caracter == "_":  # Acepta letras, números y guiones bajos
                     lexema += caracter
                 else:
                     if lexema in ["Array", "new", "save", "sort", "asc"]:
@@ -108,14 +107,16 @@ class Lexer:
                     estado = 0
                     fila += 1
                     columna = 0
+                    lexema = ""
                 else:
-                    print(f"Ignorando comentario de una línea: {caracter}")
+                    # Ignorar comentario de una línea
+                    pass
 
             elif estado == 6:  # Estado de comentario de múltiples líneas
                 if caracter == "*" and (i + 1) < len(self.entrada) and self.entrada[i + 1] == "/":
                     estado = 0
                     i += 1  # Saltar el '/' de cierre del comentario
-                    print("Cerrando comentario de múltiples líneas")
+                    lexema = ""
                 elif caracter == '\n':
                     fila += 1
                     columna = 0
@@ -152,7 +153,23 @@ class Lexer:
                 columna += 1
 
             i += 1
-    
+        
+        # Verificar si hay algún lexema pendiente al final de la entrada
+        if lexema:
+            if estado == 1:
+                if lexema in ["Array", "new", "save", "sort", "asc"]:
+                    self.tokens.append(Token("Palabra Reservada", lexema, columna - len(lexema), fila))
+                elif lexema in ["FALSE", "TRUE"]:
+                    self.tokens.append(Token("Boolean", lexema, columna - len(lexema), fila))
+                else:
+                    self.tokens.append(Token("Id", lexema, columna - len(lexema), fila))
+            elif estado == 3:
+                self.error_lex.append(ErrorLex(f"Error en string: {lexema}", columna, fila, lexema))
+            elif estado == 7:
+                self.tokens.append(Token("Numero", lexema, columna - len(lexema), fila))
+            elif estado == 8:
+                self.tokens.append(Token("Numero Decimal", lexema, columna - len(lexema), fila))
+        
         return self.tokens
 
     def imprimir(self):
@@ -162,4 +179,3 @@ class Lexer:
         print("=============errores=============")
         for error in self.error_lex:
             print(f"Errores: {error}")
-

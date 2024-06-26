@@ -1,0 +1,16 @@
+// comentario de una linea
+
+/*
+comentario
+de
+varias
+linea
+*/
+
+Array miArreglo = new Array ["hola", "pato", "pelota"];
+
+Array numeros = new Array [0, 0.333, 12065236445.332665];
+
+miArreglo.sort(asc=FALSE);
+
+miArreglo.save("ruta/del/archivo/csv");

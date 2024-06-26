@@ -41,7 +41,7 @@ class VentanaPrincipal:
         self.textArea.grid(row=2, column=0, sticky="nsew")  # Colocar textArea en la fila 2
 
     def cargar_archivo(self):
-        archivo = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.txt")])
+        archivo = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.lfp")])
         if archivo:
             with open(archivo, 'r', encoding='utf-8') as f:
                 self.contenido = f.read()
@@ -51,10 +51,9 @@ class VentanaPrincipal:
         texto = self.textArea.get("1.0", "end-1c")
         analizador = Lexer(texto)
         lst_tokens = analizador.analizar()
-        #parser = Parser(lst_tokens)
-        #parser.programa()
-        #parser.imprimir()
-        analizador.imprimir()
+        analizador.imprimir()  # Imprime los tokens y errores léxicos
+        parser = Parser(lst_tokens)
+        parser.parse()
         
 def main():
     root = Tk()

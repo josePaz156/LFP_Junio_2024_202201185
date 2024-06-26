@@ -6,4 +6,4 @@ class Token:
         self.fila = fila
 
     def __str__(self):
-        return f'{self.tipo} {self.valor} ({self.columna}, {self.fila})'
+        return f'{self.tipo} {self.valor} ({self.fila}, {self.columna})'
