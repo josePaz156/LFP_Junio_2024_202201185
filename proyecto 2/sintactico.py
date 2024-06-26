@@ -1,9 +1,13 @@
 from class_token import Token
+from class_funcionalidad import Arreglo, Ordenamiento, Guardar
+import csv
 
 class Parser():
     def __init__(self, tokens) -> None:
         self.tokens = tokens
-
+        self.arreglos = []
+        self.ordenados = []
+        self.guardados = []
         self.tokens.append(Token("EOF", "$", -1, -1))
 
 
@@ -15,6 +19,7 @@ class Parser():
 
     def parse(self):
         self.inicio()
+        self.funcionalidad()
     
     #<inicio> ::= <instrucciones>
     def inicio(self):
@@ -63,8 +68,11 @@ class Parser():
                                         #Aquí se debe manejar la instruccion
                                         print("ID: ", id.valor)
                                         print("Lista: ")
+                                        new_arreglo = []
                                         for e in elementos:
+                                            new_arreglo.append(e.valor)
                                             print(e.valor)
+                                        self.arreglos.append(Arreglo(id.valor, new_arreglo))
                                         return
                                         #Ya tenemos el id del nuevo arreglo y el valor (el arreglo como tal)
                                     else:
@@ -129,9 +137,11 @@ class Parser():
                 resultado = self.accionArreglo()
                 if resultado is not None:
                     if resultado[0] == "sort":
+                        self.ordenados.append(Ordenamiento(id.valor, resultado[1]))
                         print("La instrucción es un ordenamiento para el arreglo", id.valor, "con asc =", resultado[1])
                         return
                     elif resultado[0] == "save":
+                        self.guardados.append(Guardar(id.valor, resultado[1]))
                         print("La instrucción es guardar el arreglo", id.valor, "en el path", resultado[1])
                         return
                 else:
@@ -220,5 +230,43 @@ class Parser():
             print(f"Error sintactico: Se esperaba SAVE en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
         self.recuperar_modo_panico("PyC")
         return None
+    
+    def es_numero(self, cadena):
+        try:
+            float(cadena)
+            return True
+        except ValueError:
+            return False
 
-                        
+    def funcionalidad(self):
+
+        for i in self.ordenados:
+            for arreglo in self.arreglos:
+                if i.id == arreglo.id:
+                    if self.es_numero(arreglo.items[0]):
+                        if i.valor == "TRUE":
+                            arreglo.items.sort(key=float)
+                            print("Ordenar asendentemente")
+                        elif i.valor == "FALSE":
+                            arreglo.items.sort(key=float, reverse=True)
+                            print("Ordenar desendentemente")
+                    
+                    else:
+                        # Si todos los elementos son cadenas
+                        if i.valor == "TRUE":
+                            arreglo.items.sort()
+                            print("Ordenar ascendentemente:", arreglo.items)
+                        elif i.valor == "FALSE":
+                            arreglo.items.sort(reverse=True)
+                            print("Ordenar descendentemente:", arreglo.items)
+        
+        for i in self.guardados:
+            for arreglo in self.arreglos:
+                if i.id == arreglo.id:
+                    filename = f"{i.valor.replace('\"', '')}"
+                    with open(filename, mode='w', newline='') as file:
+                        writer = csv.writer(file)
+                        for item in arreglo.items:
+                            writer.writerow([item])
+                    print(f"Archivo {filename} guardado con éxito.")
+        

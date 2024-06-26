@@ -7,10 +7,14 @@ varias
 linea
 */
 
-Array miArreglo = new Array ["hola", "pato", "pelota"];
+Array miArreglo = new Array ["hola", "pato", "pelota", "avion", "zanahoria", "telefono", "xilofono"];
 
-Array numeros = new Array [0, 0.333, 12065236445.332665];
+Array numeros = new Array [0, 0.333, 12065236445.332665, 23, 94, 0.25, 100, 15236];
 
 miArreglo.sort(asc=FALSE);
 
-miArreglo.save("ruta/del/archivo/csv");
+numeros.sort(asc=TRUE);
+
+miArreglo.save("archivo1.csv");
+
+numeros.save("archivo2.csv");

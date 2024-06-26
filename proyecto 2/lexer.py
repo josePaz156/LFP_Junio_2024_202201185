@@ -52,6 +52,8 @@ class Lexer:
         fila = 1
         columna = 1
         lexema = ""
+        self.tokens.clear()
+        self.error_lex.clear()
 
         estado = 0
 

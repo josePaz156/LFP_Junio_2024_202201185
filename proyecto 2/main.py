@@ -41,10 +41,12 @@ class VentanaPrincipal:
         self.textArea.grid(row=2, column=0, sticky="nsew")  # Colocar textArea en la fila 2
 
     def cargar_archivo(self):
+        self.textArea.insert(1.0, "")
         archivo = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.lfp")])
         if archivo:
             with open(archivo, 'r', encoding='utf-8') as f:
                 self.contenido = f.read()
+                self.textArea.delete(1.0, END)
                 self.textArea.insert(1.0, self.contenido)  # Insertar el contenido en el textArea
 
     def compilar(self):
