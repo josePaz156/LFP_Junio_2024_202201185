@@ -1,8 +1,0 @@
-// Declaro mi nuevo array
-Array 5array_basico new Array [50, 48, 78, 69, 550, 7, 80];
-******
-//Lo ordeno de forma descendente
-array_basico.sort( FALSE = asc );
-+++++
-/* Guardo el array en un csv para usarlo después */
-array_basico.save("array1_ordenado_descendente.csv");

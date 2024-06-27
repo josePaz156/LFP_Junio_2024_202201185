@@ -1,12 +1,14 @@
-from tkinter import filedialog, ttk
+from tkinter import filedialog, ttk, messagebox
 from tkinter import *
 from lexer import Lexer
+import webbrowser
 from sintactico import Parser
 
 class VentanaPrincipal:
     def __init__(self, root):
         self.root = root
         self.construir_interfaz()
+        self.root.protocol("WM_DELETE_WINDOW", self.cerrar_ventana)
         
     def construir_interfaz(self):
         self.root.grid_rowconfigure(0, weight=1)
@@ -30,7 +32,7 @@ class VentanaPrincipal:
         analizar_btn = ttk.Button(button_frame, text="Analizar", command=self.compilar)
         analizar_btn.grid(row=0, column=1, padx=10, pady=10)
 
-        abrir_html_btn = ttk.Button(button_frame, text="Ver Reportes")
+        abrir_html_btn = ttk.Button(button_frame, text="Ver Reportes", command=self.abrir_html)
         abrir_html_btn.grid(row=0, column=2, padx=10, pady=10)
 
         button_frame.grid_columnconfigure(0, weight=1)
@@ -53,9 +55,22 @@ class VentanaPrincipal:
         texto = self.textArea.get("1.0", "end-1c")
         analizador = Lexer(texto)
         lst_tokens = analizador.analizar()
-        analizador.imprimir()  # Imprime los tokens y errores léxicos
+        analizador.generar_reporte_errores()
+        analizador.generar_reporte_tokens()
         parser = Parser(lst_tokens)
         parser.parse()
+        parser.generar_reporte_errores()
+
+    def abrir_html(self):
+        archivo_html = filedialog.askopenfilename(filetypes=[("Archivos HTML", "*.html")])
+        if archivo_html:
+            webbrowser.open_new_tab(archivo_html)
+        else:
+            messagebox.showwarning("Advertencia", "No se seleccionó ningún archivo HTML")
+    
+    def cerrar_ventana(self):
+        self.root.quit()  # Finalizar el mainloop de Tkinter
+        self.root.destroy()
         
 def main():
     root = Tk()

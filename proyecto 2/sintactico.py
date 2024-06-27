@@ -1,10 +1,14 @@
 from class_token import Token
+from class_errorStx import ErrorStx
+import tkinter as tk
+from tkinter import filedialog
 from class_funcionalidad import Arreglo, Ordenamiento, Guardar
 import csv
 
 class Parser():
     def __init__(self, tokens) -> None:
         self.tokens = tokens
+        self.errores = []
         self.arreglos = []
         self.ordenados = []
         self.guardados = []
@@ -65,31 +69,35 @@ class Parser():
                                     self.tokens.pop(0)
                                     if self.tokens[0].tipo == "PyC":
                                         self.tokens.pop(0)
-                                        #Aquí se debe manejar la instruccion
-                                        print("ID: ", id.valor)
-                                        print("Lista: ")
                                         new_arreglo = []
                                         for e in elementos:
                                             new_arreglo.append(e.valor)
-                                            print(e.valor)
                                         self.arreglos.append(Arreglo(id.valor, new_arreglo))
                                         return
                                         #Ya tenemos el id del nuevo arreglo y el valor (el arreglo como tal)
                                     else:
+                                        self.errores.append(ErrorStx(self.tokens[0].valor, ";", self.tokens[0].fila, self.tokens[0].columna))
                                         print(f"Error sintactico: Se esperaba un ; en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                                 else:
+                                    self.errores.append(ErrorStx(self.tokens[0].valor, "]", self.tokens[0].fila, self.tokens[0].columna))
                                     print(f"Error sintactico: Se esperaba un ] en la fila {self.tokens[0].fila}")
                             else:
+                                self.errores.append(ErrorStx(self.tokens[0].valor, "[", self.tokens[0].fila, self.tokens[0].columna))
                                 print(f"Error sintactico: Se esperaba un [ en la fila {self.tokens[0].fila}")
                         else:
+                            self.errores.append(ErrorStx(self.tokens[0].valor, "Array", self.tokens[0].fila, self.tokens[0].columna))
                             print(f"Error sintactico: Se esperaba la palabra Array en la fila {self.tokens[0].fila}")
                     else:
+                        self.errores.append(ErrorStx(self.tokens[0].valor, "new", self.tokens[0].fila, self.tokens[0].columna))
                         print(f"Error sintactico: Se esperaba la palabra New en la fila {self.tokens[0].fila}")
                 else:
+                    self.errores.append(ErrorStx(self.tokens[0].valor, "=", self.tokens[0].fila, self.tokens[0].columna))
                     print(f"Error sintactico: Se esperaba un = en la fila {self.tokens[0].fila}")
             else: 
+                self.errores.append(ErrorStx(self.tokens[0].valor, "id", self.tokens[0].fila, self.tokens[0].columna))
                 print(f"Error sintactico: Se esperava un id en la fina {self.tokens[0].fila}")
         else:
+            self.errores.append(ErrorStx(self.tokens[0].valor, "Array", self.tokens[0].fila, self.tokens[0].columna))
             print(f"Error sintactico: Se esperava Array en la fina {self.tokens[0].fila}")
         self.recuperar_modo_panico("PyC")
 
@@ -145,12 +153,15 @@ class Parser():
                         print("La instrucción es guardar el arreglo", id.valor, "en el path", resultado[1])
                         return
                 else:
+                    self.errores.append(ErrorStx(self.tokens[0].valor, "sort o save", self.tokens[0].fila, self.tokens[0].columna))
                     print(f"Error sintactico: Acción de arreglo inválida en la fila {self.tokens[0].fila}")
             else:
+                self.errores.append(ErrorStx(self.tokens[0].valor, ".", self.tokens[0].fila, self.tokens[0].columna))
                 print(f"Error sintactico: Se esperaba un . en la fila {self.tokens[0].fila}")
                 # Recuperación de errores en modo pánico
                 self.recuperar_modo_panico("PyC")
         else:
+            self.errores.append(ErrorStx(self.tokens[0].valor, "id", self.tokens[0].fila, self.tokens[0].columna))
             print(f"Error sintactico: Se esperaba un id en la fila {self.tokens[0].fila}")
         self.recuperar_modo_panico("PyC")
 
@@ -164,6 +175,7 @@ class Parser():
         elif self.tokens[0].valor == "save":
             return self.guardar()
         else:
+            self.errores.append(ErrorStx(self.tokens[0].valor, "sort o save", self.tokens[0].fila, self.tokens[0].columna))
             print(f"Error sintactico: Acción de arreglo inválida en la fila {self.tokens[0].fila}")
             self.recuperar_modo_panico("PyC")
             return None
@@ -188,18 +200,25 @@ class Parser():
                                     # Aquí se debe manejar la instrucción
                                     return asc.valor
                                 else:
+                                    self.errores.append(ErrorStx(self.tokens[0].valor, ";", self.tokens[0].fila, self.tokens[0].columna))
                                     print(f"Error sintactico: Se esperaba un ; en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                             else:
+                                self.errores.append(ErrorStx(self.tokens[0].valor, ")", self.tokens[0].fila, self.tokens[0].columna))
                                 print(f"Error sintactico: Se esperaba un ) en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                         else:
+                            self.errores.append(ErrorStx(self.tokens[0].valor, "TRUE/FALSE", self.tokens[0].fila, self.tokens[0].columna))
                             print(f"Error sintactico: Se esperaba TRUE/FALSE en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                     else:
+                        self.errores.append(ErrorStx(self.tokens[0].valor, "=", self.tokens[0].fila, self.tokens[0].columna))
                         print(f"Error sintactico: Se esperaba un = en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                 else:
+                    self.errores.append(ErrorStx(self.tokens[0].valor, "asc", self.tokens[0].fila, self.tokens[0].columna))
                     print(f"Error sintactico: Se esperaba ASC en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
             else:
+                self.errores.append(ErrorStx(self.tokens[0].valor, "(", self.tokens[0].fila, self.tokens[0].columna))
                 print(f"Error sintactico: Se esperaba un ( en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
         else:
+            self.errores.append(ErrorStx(self.tokens[0].valor, "sort", self.tokens[0].fila, self.tokens[0].columna))
             print(f"Error sintactico: Se esperaba SORT en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
         self.recuperar_modo_panico("PyC")
         return None
@@ -219,17 +238,44 @@ class Parser():
                             # Aquí se debe manejar la instrucción
                             return ["save", path.valor]
                         else:
+                            self.errores.append(ErrorStx(self.tokens[0].valor, ";", self.tokens[0].fila, self.tokens[0].columna))
                             print(f"Error sintactico: Se esperaba ; en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                     else:
+                        self.errores.append(ErrorStx(self.tokens[0].valor, ")", self.tokens[0].fila, self.tokens[0].columna))
                         print(f"Error sintactico: Se esperaba ) en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
                 else:
+                    self.errores.append(ErrorStx(self.tokens[0].valor, "String", self.tokens[0].fila, self.tokens[0].columna))
                     print(f"Error sintactico: Se esperaba un string en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
             else:
+                self.errores.append(ErrorStx(self.tokens[0].valor, "(", self.tokens[0].fila, self.tokens[0].columna))
                 print(f"Error sintactico: Se esperaba ( en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
         else:
+            self.errores.append(ErrorStx(self.tokens[0].valor, "save", self.tokens[0].fila, self.tokens[0].columna))
             print(f"Error sintactico: Se esperaba SAVE en la fila {self.tokens[0].fila}, pero se obtuvo {self.tokens[0].valor}")
         self.recuperar_modo_panico("PyC")
         return None
+    
+    def seleccionar_ruta(self):
+        root = tk.Tk()
+        root.withdraw()  # Oculta la ventana principal de Tkinter
+        ruta = filedialog.askdirectory(title="Selecciona la carpeta donde se guardarán los reportes")
+        return ruta + '/' if ruta else ''
+
+    def generar_reporte_errores(self):
+        ruta = self.seleccionar_ruta()
+        if not ruta:
+            print("No se seleccionó una carpeta. Operación cancelada.")
+            return
+
+        contenido = "<!DOCTYPE html>\n<html>\n<head>\n<title>Reporte de Errores</title>\n</head>\n<body>\n"
+        contenido += "<h1>Reporte de Errores Sintacticos</h1>\n"
+        contenido += "<table border='1'>\n<tr><th>#</th><th>Valor</th><th>Esperado</th><th>Fila</th><th>Columna</th></tr>\n"
+        for i, error in enumerate(self.errores):
+            contenido += f"<tr><td>{i+1}</td><td>{error.valor}</td><td>{error.esperado}</td><td>{error.fila}</td><td>{error.columna}</td></tr>\n"
+        contenido += "</table>\n</body>\n</html>"
+
+        with open(f"{ruta}reporte_errores_stx.html", "w") as f:
+            f.write(contenido)
     
     def es_numero(self, cadena):
         try:
@@ -245,20 +291,35 @@ class Parser():
                 if i.id == arreglo.id:
                     if self.es_numero(arreglo.items[0]):
                         if i.valor == "TRUE":
-                            arreglo.items.sort(key=float)
-                            print("Ordenar asendentemente")
+                            # Ordenamiento de burbuja ascendente
+                            n = len(arreglo.items)
+                            for j in range(n):
+                                for k in range(0, n-j-1):
+                                    if float(arreglo.items[k]) > float(arreglo.items[k+1]):
+                                        arreglo.items[k], arreglo.items[k+1] = arreglo.items[k+1], arreglo.items[k]
                         elif i.valor == "FALSE":
-                            arreglo.items.sort(key=float, reverse=True)
-                            print("Ordenar desendentemente")
-                    
+                            # Ordenamiento de burbuja descendente
+                            n = len(arreglo.items)
+                            for j in range(n):
+                                for k in range(0, n-j-1):
+                                    if float(arreglo.items[k]) < float(arreglo.items[k+1]):
+                                        arreglo.items[k], arreglo.items[k+1] = arreglo.items[k+1], arreglo.items[k]
                     else:
                         # Si todos los elementos son cadenas
                         if i.valor == "TRUE":
-                            arreglo.items.sort()
-                            print("Ordenar ascendentemente:", arreglo.items)
+                            # Ordenamiento de burbuja ascendente
+                            n = len(arreglo.items)
+                            for j in range(n):
+                                for k in range(0, n-j-1):
+                                    if arreglo.items[k] > arreglo.items[k+1]:
+                                        arreglo.items[k], arreglo.items[k+1] = arreglo.items[k+1], arreglo.items[k]
                         elif i.valor == "FALSE":
-                            arreglo.items.sort(reverse=True)
-                            print("Ordenar descendentemente:", arreglo.items)
+                            # Ordenamiento de burbuja descendente
+                            n = len(arreglo.items)
+                            for j in range(n):
+                                for k in range(0, n-j-1):
+                                    if arreglo.items[k] < arreglo.items[k+1]:
+                                        arreglo.items[k], arreglo.items[k+1] = arreglo.items[k+1], arreglo.items[k]
         
         for i in self.guardados:
             for arreglo in self.arreglos:
@@ -266,6 +327,7 @@ class Parser():
                     filename = f"{i.valor.replace('\"', '')}"
                     with open(filename, mode='w', newline='') as file:
                         writer = csv.writer(file)
+                        writer.writerow(["data"])
                         for item in arreglo.items:
                             writer.writerow([item])
                     print(f"Archivo {filename} guardado con éxito.")
